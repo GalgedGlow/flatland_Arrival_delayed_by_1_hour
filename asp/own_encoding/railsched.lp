@@ -209,8 +209,11 @@ forward_is_right(6672, s).
 :- occupation(train(ID), (X,Y), T, _), end(ID, (X,Y), Arr ), Arr < T.
 
 %Minimize train journey times
-action_count(C) :- C = #count{ TID, A, T: action(TID, A, T) }.
+action_count(AC) :- AC = #count{ TID, A, T: action(TID, A, T) }.
+action_wait_count(AWC) :- AWC = #count{ TID, A, T: action(TID, T, T ), A = wait }.
 #minimize { C@1: action_count(C) }.
+
+%&sum { AWC } <= 1 :- action_wait_count(AWC).
 
 #show occupation/4.
 %#show action/3.
