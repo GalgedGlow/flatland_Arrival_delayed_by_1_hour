@@ -122,33 +122,31 @@ action(train(ID), move_forward, Dep+1) :- start(ID, _, Dep, _).
 
 %move_forward != keeping direction for Track Type #1, #2 and #6!!!
 %but should work for move_left and move_right
-occupation(train(ID), (X-1,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, n), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), not forward_is_left(Track, n), not forward_is_right(Track, n). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y-1), T+1, w) 	:- occupation(train(ID), (X,Y), T, n), not end(ID, (X,Y), _), action(train(ID), move_left, T+1). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y-1), T+1, w) 	:- occupation(train(ID), (X,Y), T, n), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_left(Track, n). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y+1), T+1, e) 	:- occupation(train(ID), (X,Y), T, n), not end(ID, (X,Y), _), action(train(ID), move_right, T+1). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y+1), T+1, e) 	:- occupation(train(ID), (X,Y), T, n), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_right(Track, n). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, n), not end(ID, (X,Y), _), action(train(ID), wait, T+1). %TODO: probably only action/3 or end/3 necessary
+occupation(train(ID), (X-1,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, n), action(train(ID), move_forward, T+1), cell((X,Y), Track), not forward_is_left(Track, n), not forward_is_right(Track, n).
+occupation(train(ID), (X,Y-1), T+1, w) 	:- occupation(train(ID), (X,Y), T, n), action(train(ID), move_left, T+1).
+occupation(train(ID), (X,Y-1), T+1, w) 	:- occupation(train(ID), (X,Y), T, n), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_left(Track, n).
+occupation(train(ID), (X,Y+1), T+1, e) 	:- occupation(train(ID), (X,Y), T, n), action(train(ID), move_right, T+1).
+occupation(train(ID), (X,Y+1), T+1, e) 	:- occupation(train(ID), (X,Y), T, n), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_right(Track, n).
 
-occupation(train(ID), (X,Y+1), T+1, e) 	:- occupation(train(ID), (X,Y), T, e), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), not forward_is_left(Track, e), not forward_is_right(Track, e). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X-1,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, e), not end(ID, (X,Y), _), action(train(ID), move_left, T+1). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X-1,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, e), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_left(Track, e). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X+1,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, e), not end(ID, (X,Y), _), action(train(ID), move_right, T+1). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X+1,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, e), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_right(Track, e). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y), T+1, e) 	:- occupation(train(ID), (X,Y), T, e), not end(ID, (X,Y), _), action(train(ID), wait, T+1). %TODO: probably only action/3 or end/3 necessary
+occupation(train(ID), (X,Y+1), T+1, e) 	:- occupation(train(ID), (X,Y), T, e), action(train(ID), move_forward, T+1), cell((X,Y), Track), not forward_is_left(Track, e), not forward_is_right(Track, e).
+occupation(train(ID), (X-1,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, e), action(train(ID), move_left, T+1).
+occupation(train(ID), (X-1,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, e), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_left(Track, e).
+occupation(train(ID), (X+1,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, e), action(train(ID), move_right, T+1).
+occupation(train(ID), (X+1,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, e), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_right(Track, e).
 
-occupation(train(ID), (X+1,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, s), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), not forward_is_left(Track, s), not forward_is_right(Track, s). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y+1), T+1, e) 	:- occupation(train(ID), (X,Y), T, s), not end(ID, (X,Y), _), action(train(ID), move_left, T+1). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y+1), T+1, e) 	:- occupation(train(ID), (X,Y), T, s), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_left(Track, s). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y-1), T+1, w) 	:- occupation(train(ID), (X,Y), T, s), not end(ID, (X,Y), _), action(train(ID), move_right, T+1). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y-1), T+1, w) 	:- occupation(train(ID), (X,Y), T, s), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_right(Track, s). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, s), not end(ID, (X,Y), _), action(train(ID), wait, T+1). %TODO: probably only action/3 or end/3 necessary
+occupation(train(ID), (X+1,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, s), action(train(ID), move_forward, T+1), cell((X,Y), Track), not forward_is_left(Track, s), not forward_is_right(Track, s).
+occupation(train(ID), (X,Y+1), T+1, e) 	:- occupation(train(ID), (X,Y), T, s), action(train(ID), move_left, T+1).
+occupation(train(ID), (X,Y+1), T+1, e) 	:- occupation(train(ID), (X,Y), T, s), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_left(Track, s).
+occupation(train(ID), (X,Y-1), T+1, w) 	:- occupation(train(ID), (X,Y), T, s), action(train(ID), move_right, T+1).
+occupation(train(ID), (X,Y-1), T+1, w) 	:- occupation(train(ID), (X,Y), T, s), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_right(Track, s).
 
-occupation(train(ID), (X,Y-1), T+1, w) 	:- occupation(train(ID), (X,Y), T, w), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), not forward_is_left(Track, w), not forward_is_right(Track, w). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X+1,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, w), not end(ID, (X,Y), _), action(train(ID), move_left, T+1). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X+1,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, w), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_left(Track, w). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X-1,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, w), not end(ID, (X,Y), _), action(train(ID), move_right, T+1). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X-1,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, w), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_right(Track, w). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y), T+1, w) 	:- occupation(train(ID), (X,Y), T, w), not end(ID, (X,Y), _), action(train(ID), wait, T+1). %TODO: probably only action/3 or end/3 necessary
+occupation(train(ID), (X,Y-1), T+1, w) 	:- occupation(train(ID), (X,Y), T, w), action(train(ID), move_forward, T+1), cell((X,Y), Track), not forward_is_left(Track, w), not forward_is_right(Track, w).
+occupation(train(ID), (X+1,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, w), action(train(ID), move_left, T+1).
+occupation(train(ID), (X+1,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, w), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_left(Track, w).
+occupation(train(ID), (X-1,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, w), action(train(ID), move_right, T+1).
+occupation(train(ID), (X-1,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, w), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_right(Track, w).
+
+occupation(train(ID), (X,Y), T+1, Dir) 	:- occupation(train(ID), (X,Y), T, Dir), action(train(ID), wait, T+1).
 
 % e -> Y+1
 % s -> X+1
@@ -207,10 +205,15 @@ forward_is_right(6672, s).
 :- not occupation(train(ID), (X,Y), _, _), end(ID, (X,Y), _).
 % ... in time
 :- occupation(train(ID), (X,Y), T, _), end(ID, (X,Y), Arr ), Arr < T.
+% and no actions after destination reached
+:- end(ID, _, Arr), action(train(ID), _, T), T > Arr.
 
 %Minimize train journey times
-action_count(C) :- C = #count{ TID, A, T: action(TID, A, T) }.
+action_count(AC) :- AC = #count{ TID, A, T: action(TID, A, T) }.
+action_wait_count(AWC) :- AWC = #count{ TID, A, T: action(TID, T, T ), A = wait }.
 #minimize { C@1: action_count(C) }.
 
-#show occupation/4.
-%#show action/3.
+%&sum { AWC } <= 1 :- action_wait_count(AWC).
+
+%#show occupation/4.
+#show action/3.
