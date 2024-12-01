@@ -114,7 +114,7 @@ arrival(ID, ArrActual) :- end(ID, (X,Y), _), occupation(train(ID), (X,Y), ArrAct
 
 %init train occupations on second time step
 occupation(train(ID), (X,Y), Dep+1, Dir) :- start(ID, (X,Y), Dep, Dir).
-%and action of the past for whatever reason
+%and action of the past for whatever reason TODO: check if it works for each start time
 action(train(ID), wait, Dep) :- start(ID, _, Dep, _).
 action(train(ID), move_forward, Dep+1) :- start(ID, _, Dep, _).
 
