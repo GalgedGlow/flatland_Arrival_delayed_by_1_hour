@@ -94,7 +94,7 @@ track_from_to(TrackNum, DirFrom, DirTo) :- bit_value(D, TrackNum, 1), from_to(Di
 % move_right is move_forward if exactly one DirTo exists
 { action(train(ID), move_forward, T+1) } :- track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), occupation(train(ID), (X,Y), T, DirFrom), direction(DirFrom, FromVal), direction(DirTo, ToVal), (FromVal - ToVal + 4) \ 4 = 1, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC = 1, end(ID, _, Arr), T < Arr.
 % we could always wait (until time is over)
-{ action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), _, T, _), end(ID, _, Arr), T < Arr.
+%{ action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), _, T, _), end(ID, _, Arr), T < Arr.
 
 %action_count(T, AC) 
 %:- occupation(TID, _, T, _), AC = #count{ A : action(TID, A, T ) }, AC > 1.
@@ -133,9 +133,9 @@ occupation(train(ID), (X, Y), T+1, Dir) :- occupation(train(ID), (X,Y), T, Dir),
 :- occupation(_, (X,Y), _, _), not cell((X,Y), _). 
 :- occupation(_, (X,Y), _, _), cell((X,Y), 0).
 % two trains cannot be on the same track on the same time
-:- occupation(train(ID1), (X,Y), T, _), occupation(train(ID2), (X,Y), T, _), ID1 != ID2.%, cell((X,Y), Track), Track != 38505, Track != 52275. %OR: { action(train(ID1), move_left, T+1), action(train(ID2), move_left, T+1) ; action(train(ID1)), move_right, T+1), action(train(ID2), move_right, T+1) } = 1. -> 2 integrity constraints
+:- occupation(train(ID1), (X,Y), T, _), occupation(train(ID2), (X,Y), T, _), ID1 < ID2.
 % or swap tiles within one time step
-:- occupation(train(ID1), (X1,Y1), T, _), occupation(train(ID2), (X2,Y2), T, _), occupation(train(ID1), (X2,Y2), T+1, _), occupation(train(ID2), (X1,Y1), T+1, _), ID1 != ID2.
+:- occupation(train(ID1), (X1,Y1), T, _), occupation(train(ID2), (X2,Y2), T, _), occupation(train(ID1), (X2,Y2), T+1, _), occupation(train(ID2), (X1,Y1), T+1, _), ID1 < ID2.
 % no move for train after scheduled arrival
 :- occupation(train(ID), _, T, _), end(ID, _, Arr), Arr < T.
 :- action(train(ID), _, T), end(ID, _, Arr), Arr < T.
