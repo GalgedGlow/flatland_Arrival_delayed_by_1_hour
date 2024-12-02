@@ -103,8 +103,8 @@ track_from_to(TrackNum, DirFrom, DirTo) :- bit_value(D, TrackNum, 1), from_to(Di
 :- action(train(ID), Action1, T), action(train(ID), Action2, T), Action1 != Action2.
 %wait_action(T, AC) :- AC = #count{ T : action(TID, wait, T ) }, action(TID, A, T).
 
-%max 3 wait
-:- AC = #count{ T : action(TID, wait, T ) }, AC > 3.
+%max n wait actions
+:- AC = #count{ T : action(TID, wait, T ) }, AC > 4.
 
 %------------------------------------------------------------------------------------------------------------------------------------------------------%
 
@@ -147,9 +147,10 @@ occupation(train(ID), (X, Y), T+1, Dir) :- occupation(train(ID), (X,Y), T, Dir),
 :- end(ID, _, Arr), action(train(ID), _, T), T > Arr.
 
 %Minimize train journey times
-action_count(AC) :- AC = #count{ TID, A, T: action(TID, A, T) }.
-action_wait_count(AWC) :- AWC = #count{ TID, A, T: action(TID, T, T ), A = wait }.
-#minimize { C@1: action_count(C) }.
+%action_count(AC) :- AC = #count{ TID, A, T: action(TID, A, T) }.
+%action_wait_count(AWC) :- AWC = #count{ TID, A, T: action(TID, T, T ), A = wait }.
+%#minimize { AC@1: action_count(AC) }.
+#minimize { 1, TID, A, T: action(TID, A, T) }.
 
 %&sum { AWC } <= 1 :- action_wait_count(AWC).
 
