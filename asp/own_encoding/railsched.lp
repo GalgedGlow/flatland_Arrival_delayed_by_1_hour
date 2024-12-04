@@ -10,196 +10,132 @@
 
 %remove actions after reaching destination
 arrival(ID, ArrActual) :- end(ID, (X,Y), _), occupation(train(ID), (X,Y), ArrActual, _).
-:- arrival(ID, 	ArrActual), action(train(ID), _, ArrActual+1).
+:- arrival(ID, 	ArrActual), action(train(ID), _, AfterArrival), AfterArrival > ArrActual.
 
-%occupation(cell, direction) + tracktype -> action+move_direction
-%TODO: replace >= with =
-
-%generate actions
-%{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), _, T, _), end(ID, (X,Y), Arr ), T < Arr.
 
 % Track Type #1
-%variation 32800
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 32800), { Dir = s; Dir = n } >= 1, end(ID, _, Arr), T < Arr.
-%variation 1025
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 1025), { Dir = w; Dir = e } >= 1, end(ID, _, Arr), T < Arr.
-%variation 4608
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 4608), { Dir = e; Dir = s } >= 1, end(ID, _, Arr), T < Arr.
-%variation 16386
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 16386), { Dir = n; Dir = w } >= 1, end(ID, _, Arr), T < Arr.
-%variation 72
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 72), { Dir = s; Dir = w } >= 1, end(ID, _, Arr), T < Arr.
-%variation 2064
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 2064), { Dir = e; Dir = s } >= 1, end(ID, _, Arr), T < Arr.
+track(1025).
+track(32800).
+track(4608).
+track(16386).
+track(72).
+track(2064).
 
 % Track Type #2
-%variation 37408
-{ action(train(ID), move_forward, T+1); action(train(ID), move_left, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, n), cell((X,Y), 37408), end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 37408), { Dir = s; Dir = e } >= 1, end(ID, _, Arr), T < Arr.
-%variation 17411
-{ action(train(ID), move_forward, T+1); action(train(ID), move_left, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, w), cell((X,Y), 17411), end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 17411), { Dir = n; Dir = e } >= 1, end(ID, _, Arr), T < Arr.
-%variation 32872
-{ action(train(ID), move_forward, T+1); action(train(ID), move_left, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, s), cell((X,Y), 32872), end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 32872), { Dir = n; Dir = w } >= 1, end(ID, _, Arr), T < Arr.
-%variation 3089
-{ action(train(ID), move_forward, T+1); action(train(ID), move_left, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, e), cell((X,Y), 3089), end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 3089), { Dir = s; Dir = w } >= 1, end(ID, _, Arr), T < Arr.
-%variation 49186
-{ action(train(ID), move_forward, T+1); action(train(ID), move_right, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, n), cell((X,Y), 49186), end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 49186), { Dir = s; Dir = w } >= 1, end(ID, _, Arr), T < Arr.
-%variation 1097
-{ action(train(ID), move_forward, T+1); action(train(ID), move_right, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, w), cell((X,Y), 1097), end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 1097), { Dir = s; Dir = e } >= 1, end(ID, _, Arr), T < Arr.
-%variation 34864
-{ action(train(ID), move_forward, T+1); action(train(ID), move_right, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, s), cell((X,Y), 34864), end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 34864), { Dir = n; Dir = e } >= 1, end(ID, _, Arr), T < Arr.
-%variation 5633
-{ action(train(ID), move_forward, T+1); action(train(ID), move_right, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, e), cell((X,Y), 5633), end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 5633), { Dir = n; Dir = w } >= 1, end(ID, _, Arr), T < Arr.
+track(37408).
+track(17411).
+track(32872).
+track(3089).
+track(49186).
+track(1097).
+track(34864).
+track(5633).
 
 % Track Type #3
-%variation 33825
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, _), cell((X,Y), 33825).
+track(33825).
 
 % Track Type #4
-%variation 38433
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 38433), { Dir = w; Dir = s } >= 1, end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), move_left, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, n), cell((X,Y), 38433), end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), move_right, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, e), cell((X,Y), 38433), end(ID, _, Arr), T < Arr.
-%variation 50211
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 50211), { Dir = e; Dir = s } >= 1, end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), move_left, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, w), cell((X,Y), 50211), end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), move_right, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, n), cell((X,Y), 50211), end(ID, _, Arr), T < Arr.
-%variation 33897
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 33897), { Dir = e; Dir = n } >= 1, end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), move_left, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, s), cell((X,Y), 33897), end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), move_right, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, w), cell((X,Y), 33897), end(ID, _, Arr), T < Arr.
-%variation 35889
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 35889), { Dir = w; Dir = n } >= 1, end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), move_left, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, e), cell((X,Y), 35889), end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), move_right, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, s), cell((X,Y), 35889), end(ID, _, Arr), T < Arr.
+track(38433).
+track(50211).
+track(33897).
+track(35889).
 
 % Track Type #5
-%variation 38505
-{ action(train(ID), move_forward, T+1); action(train(ID), move_left, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 38505), { Dir = n; Dir = s } >= 1, end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), move_right, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 38505), { Dir = e; Dir = w } >= 1, end(ID, _, Arr), T < Arr.
-%variation 52275
-{ action(train(ID), move_forward, T+1); action(train(ID), move_left, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 52275), { Dir = e; Dir = w } >= 1, end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), move_right, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 52275), { Dir = n; Dir = s } >= 1, end(ID, _, Arr), T < Arr.
+track(38505).
+track(52275).
 
 % Track Type #6
-%variation 20994
-{ action(train(ID), move_left, T+1); action(train(ID), move_right, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, n), cell((X,Y), 20994), end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 20994), { Dir = e; Dir = w } >= 1, end(ID, _, Arr), T < Arr.
-%variation 16458
-{ action(train(ID), move_left, T+1); action(train(ID), move_right, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, w), cell((X,Y), 16458), end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 16458), { Dir = n; Dir = s } >= 1, end(ID, _, Arr), T < Arr.
-%variation 2136
-{ action(train(ID), move_left, T+1); action(train(ID), move_right, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, s), cell((X,Y), 2136), end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 2136), { Dir = e; Dir = w } >= 1, end(ID, _, Arr), T < Arr.
-%variation 6672
-{ action(train(ID), move_left, T+1); action(train(ID), move_right, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, e), cell((X,Y), 6672), end(ID, _, Arr), T < Arr.
-{ action(train(ID), move_forward, T+1); action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), (X,Y), T, Dir), cell((X,Y), 6672), { Dir = n; Dir = s } >= 1, end(ID, _, Arr), T < Arr.
+track(20994).
+track(16458).
+track(2136).
+track(6672).
+
+% divisors of each direction
+direction(n, 3).
+direction(e, 2).
+direction(s, 1).
+direction(w, 0).
+
+% convert direction to coordinate change
+move_x_y(n, -1, 0).
+move_x_y(e, 0, 1).
+move_x_y(s, 1, 0).
+move_x_y(w, 0, -1).
+
+%all 16 bits/divisors for track numbers
+#const highest = 15.
+divisor(0..highest).
+
+%bit and its remainder for highest(=15) tracknum
+bit(highest, TrackNum, TrackNum) :- track(TrackNum).
+
+%calculate remainders of other bits
+bit(Bit-1, TrackNum, Remainder\(2**Bit)) :- bit(Bit, TrackNum, Remainder), Bit > 0.
+
+%bit value is 1, if remainder divided by divisor is at least 1
+bit_value(Bit, TrackNum, Remainder/(2**Bit)) :- bit(Bit, TrackNum, Remainder).
+
+%map each bit to a from_to direction
+from_to(DirFrom, DirTo, D) :- direction(DirFrom, D/4), direction(DirTo, D\4), divisor(D).
+
+%use direction mapping and bit values to generate valid directions for each track
+track_from_to(TrackNum, DirFrom, DirTo) :- bit_value(D, TrackNum, 1), from_to(DirFrom, DirTo, D).
 
 
+% If there is a track_from_to with DirFrom equals DirTo, then we can move forward
+{ action(train(ID), move_forward, T+1) } :- track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), occupation(train(ID), (X,Y), T, DirFrom), DirFrom = DirTo, end(ID, _, Arr), T < Arr.
+% using numbers of direction, we can calculate possible directions with DirFrom modulo DirTo for move_left or move_right; +4, because clingo struggles with modulo of negative values
+% move_left is move_left if multiple DirTo exist
+{ action(train(ID), move_left, T+1) } :- track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), occupation(train(ID), (X,Y), T, DirFrom), direction(DirFrom, FromVal), direction(DirTo, ToVal), (FromVal - ToVal + 4) \ 4 = 3, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC != 1, end(ID, _, Arr), T < Arr.
+% move_left is move_forward if exactly one DirTo exists
+{ action(train(ID), move_forward, T+1) } :- track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), occupation(train(ID), (X,Y), T, DirFrom), direction(DirFrom, FromVal), direction(DirTo, ToVal), (FromVal - ToVal + 4) \ 4 = 3, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC = 1, end(ID, _, Arr), T < Arr.
+% move_right is move_right if multiple DirTo exist
+{ action(train(ID), move_right, T+1) } :- track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), occupation(train(ID), (X,Y), T, DirFrom), direction(DirFrom, FromVal), direction(DirTo, ToVal), (FromVal - ToVal + 4) \ 4 = 1, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC != 1, end(ID, _, Arr), T < Arr.
+% move_right is move_forward if exactly one DirTo exists
+{ action(train(ID), move_forward, T+1) } :- track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), occupation(train(ID), (X,Y), T, DirFrom), direction(DirFrom, FromVal), direction(DirTo, ToVal), (FromVal - ToVal + 4) \ 4 = 1, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC = 1, end(ID, _, Arr), T < Arr.
+% we could always wait (until time is over)
+%{ action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), _, T, _), end(ID, _, Arr), T < Arr.
 
+%action_count(T, AC) 
+%:- occupation(TID, _, T, _), AC = #count{ A : action(TID, A, T ) }, AC > 1.
+
+% only one action for each train at a time step
+:- action(train(ID), Action1, T), action(train(ID), Action2, T), Action1 != Action2.
+%wait_action(T, AC) :- AC = #count{ T : action(TID, wait, T ) }, action(TID, A, T).
+
+%max n wait actions
+:- AC = #count{ T : action(TID, wait, T ) }, AC > 4.
 
 %------------------------------------------------------------------------------------------------------------------------------------------------------%
 
-
-
-
-
-
 %init train occupations on second time step
 occupation(train(ID), (X,Y), Dep+1, Dir) :- start(ID, (X,Y), Dep, Dir).
-%and action of the past for whatever reason
+%and action of the past for whatever reason TODO: check if it works for each start time
 action(train(ID), wait, Dep) :- start(ID, _, Dep, _).
 action(train(ID), move_forward, Dep+1) :- start(ID, _, Dep, _).
 
-%action+move_direction + occupation(cell, direction) -> new occupation + direction
+% regular move_forward if DirFrom = DirTo
+occupation(train(ID), (X + XChange, Y + YChange), T+1, DirTo) :- occupation(train(ID), (X,Y), T, DirFrom), action(train(ID), move_forward, T+1), move_x_y(DirTo, XChange, YChange), track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), DirFrom = DirTo.
+% move_forward is move_left if there is only one DirTo
+occupation(train(ID), (X + XChange, Y + YChange), T+1, DirTo) :- occupation(train(ID), (X,Y), T, DirFrom), action(train(ID), move_forward, T+1), move_x_y(DirTo, XChange, YChange), track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), direction(DirFrom, FromVal), direction(DirTo, ToVal), (FromVal - ToVal + 4) \ 4 = 3, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC = 1.
+% move_forward is move_right if there is only one DirTo
+occupation(train(ID), (X + XChange, Y + YChange), T+1, DirTo) :- occupation(train(ID), (X,Y), T, DirFrom), action(train(ID), move_forward, T+1), move_x_y(DirTo, XChange, YChange), track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), direction(DirFrom, FromVal), direction(DirTo, ToVal), (FromVal - ToVal + 4) \ 4 = 1, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC = 1.
 
-%move_forward != keeping direction for Track Type #1, #2 and #6!!!
-%but should work for move_left and move_right
-occupation(train(ID), (X-1,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, n), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), not forward_is_left(Track, n), not forward_is_right(Track, n). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y-1), T+1, w) 	:- occupation(train(ID), (X,Y), T, n), not end(ID, (X,Y), _), action(train(ID), move_left, T+1). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y-1), T+1, w) 	:- occupation(train(ID), (X,Y), T, n), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_left(Track, n). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y+1), T+1, e) 	:- occupation(train(ID), (X,Y), T, n), not end(ID, (X,Y), _), action(train(ID), move_right, T+1). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y+1), T+1, e) 	:- occupation(train(ID), (X,Y), T, n), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_right(Track, n). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, n), not end(ID, (X,Y), _), action(train(ID), wait, T+1). %TODO: probably only action/3 or end/3 necessary
+% regular move_left
+occupation(train(ID), (X + XChange, Y + YChange), T+1, DirTo) :- occupation(train(ID), (X,Y), T, DirFrom), action(train(ID), move_left, T+1), direction(DirFrom, FromVal), ToVal = (FromVal + 1) \ 4, direction(DirTo, ToVal), move_x_y(DirTo, XChange, YChange).
+% regular move_right
+occupation(train(ID), (X + XChange, Y + YChange), T+1, DirTo) :- occupation(train(ID), (X,Y), T, DirFrom), action(train(ID), move_right, T+1), direction(DirFrom, FromVal), ToVal = (FromVal + 3) \ 4, direction(DirTo, ToVal), move_x_y(DirTo, XChange, YChange).
 
-occupation(train(ID), (X,Y+1), T+1, e) 	:- occupation(train(ID), (X,Y), T, e), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), not forward_is_left(Track, e), not forward_is_right(Track, e). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X-1,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, e), not end(ID, (X,Y), _), action(train(ID), move_left, T+1). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X-1,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, e), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_left(Track, e). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X+1,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, e), not end(ID, (X,Y), _), action(train(ID), move_right, T+1). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X+1,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, e), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_right(Track, e). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y), T+1, e) 	:- occupation(train(ID), (X,Y), T, e), not end(ID, (X,Y), _), action(train(ID), wait, T+1). %TODO: probably only action/3 or end/3 necessary
-
-occupation(train(ID), (X+1,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, s), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), not forward_is_left(Track, s), not forward_is_right(Track, s). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y+1), T+1, e) 	:- occupation(train(ID), (X,Y), T, s), not end(ID, (X,Y), _), action(train(ID), move_left, T+1). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y+1), T+1, e) 	:- occupation(train(ID), (X,Y), T, s), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_left(Track, s). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y-1), T+1, w) 	:- occupation(train(ID), (X,Y), T, s), not end(ID, (X,Y), _), action(train(ID), move_right, T+1). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y-1), T+1, w) 	:- occupation(train(ID), (X,Y), T, s), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_right(Track, s). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, s), not end(ID, (X,Y), _), action(train(ID), wait, T+1). %TODO: probably only action/3 or end/3 necessary
-
-occupation(train(ID), (X,Y-1), T+1, w) 	:- occupation(train(ID), (X,Y), T, w), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), not forward_is_left(Track, w), not forward_is_right(Track, w). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X+1,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, w), not end(ID, (X,Y), _), action(train(ID), move_left, T+1). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X+1,Y), T+1, s) 	:- occupation(train(ID), (X,Y), T, w), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_left(Track, w). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X-1,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, w), not end(ID, (X,Y), _), action(train(ID), move_right, T+1). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X-1,Y), T+1, n) 	:- occupation(train(ID), (X,Y), T, w), not end(ID, (X,Y), _), action(train(ID), move_forward, T+1), cell((X,Y), Track), forward_is_right(Track, w). %TODO: probably only action/3 or end/3 necessary
-occupation(train(ID), (X,Y), T+1, w) 	:- occupation(train(ID), (X,Y), T, w), not end(ID, (X,Y), _), action(train(ID), wait, T+1). %TODO: probably only action/3 or end/3 necessary
-
-% e -> Y+1
-% s -> X+1
-% w -> Y-1
-% n -> X-1
-
-%Special Cases:
-
-%forward_is_left(Track, Dir).
-% Track Type #1
-forward_is_left(4608, n).
-forward_is_left(16386, w).
-forward_is_left(72, s).
-forward_is_left(2064, e).
-% Track Type #2
-forward_is_left(49186, w).
-forward_is_left(1097, s).
-forward_is_left(34864, e).
-forward_is_left(5633, n).
-% Track Type #6
-forward_is_left(20994, w).
-forward_is_left(16458, s).
-forward_is_left(2136, e).
-forward_is_left(6672, n).
-
-%forward_is_right(Track, Dir).
-% Track Type #1
-forward_is_right(4608, e).
-forward_is_right(16386, n).
-forward_is_right(72, w).
-forward_is_right(2064, s).
-% Track Type #2
-forward_is_right(37408, e).
-forward_is_right(17411, n).
-forward_is_right(32872, w).
-forward_is_right(3089, s).
-% Track Type #6
-forward_is_right(20994, e).
-forward_is_right(16458, n).
-forward_is_right(2136, w).
-forward_is_right(6672, s).
-
-
+% just waiting
+occupation(train(ID), (X, Y), T+1, Dir) :- occupation(train(ID), (X,Y), T, Dir), action(train(ID), wait, T+1).
 
 % train has to be on track that exists
 :- occupation(_, (X,Y), _, _), not cell((X,Y), _). 
 :- occupation(_, (X,Y), _, _), cell((X,Y), 0).
 % two trains cannot be on the same track on the same time
-:- occupation(train(ID1), (X,Y), T, _), occupation(train(ID2), (X,Y), T, _), ID1 != ID2.%, cell((X,Y), Track), Track != 38505, Track != 52275. %OR: { action(train(ID1), move_left, T+1), action(train(ID2), move_left, T+1) ; action(train(ID1)), move_right, T+1), action(train(ID2), move_right, T+1) } = 1. -> 2 integrity constraints
+:- occupation(train(ID1), (X,Y), T, _), occupation(train(ID2), (X,Y), T, _), ID1 < ID2.
 % or swap tiles within one time step
-:- occupation(train(ID1), (X1,Y1), T, _), occupation(train(ID2), (X2,Y2), T, _), occupation(train(ID1), (X2,Y2), T+1, _), occupation(train(ID2), (X1,Y1), T+1, _), ID1 != ID2.
+:- occupation(train(ID1), (X1,Y1), T, _), occupation(train(ID2), (X2,Y2), T, _), occupation(train(ID1), (X2,Y2), T+1, _), occupation(train(ID2), (X1,Y1), T+1, _), ID1 < ID2.
 % no move for train after scheduled arrival
 :- occupation(train(ID), _, T, _), end(ID, _, Arr), Arr < T.
 :- action(train(ID), _, T), end(ID, _, Arr), Arr < T.
@@ -207,13 +143,22 @@ forward_is_right(6672, s).
 :- not occupation(train(ID), (X,Y), _, _), end(ID, (X,Y), _).
 % ... in time
 :- occupation(train(ID), (X,Y), T, _), end(ID, (X,Y), Arr ), Arr < T.
+% and no actions after destination reached
+:- end(ID, _, Arr), action(train(ID), _, T), T > Arr.
 
 %Minimize train journey times
-action_count(AC) :- AC = #count{ TID, A, T: action(TID, A, T) }.
-action_wait_count(AWC) :- AWC = #count{ TID, A, T: action(TID, T, T ), A = wait }.
-#minimize { C@1: action_count(C) }.
+%action_count(AC) :- AC = #count{ TID, A, T: action(TID, A, T) }.
+%action_wait_count(AWC) :- AWC = #count{ TID, A, T: action(TID, T, T ), A = wait }.
+%#minimize { AC@1: action_count(AC) }.
+#minimize { 1, TID, A, T: action(TID, A, T) }.
 
 %&sum { AWC } <= 1 :- action_wait_count(AWC).
 
-#show occupation/4.
-%#show action/3.
+%#show occupation/4.
+#show action/3.
+%#show action_count/2.
+%#show wait_action/1.
+
+
+%test
+:- end(ID, _, T), action(train(ID), _, T).
