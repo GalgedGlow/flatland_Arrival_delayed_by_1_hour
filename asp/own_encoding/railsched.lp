@@ -86,18 +86,16 @@ track_from_to(TrackNum, DirFrom, DirTo) :- bit_value(D, TrackNum, 1), from_to(Di
 { action(train(ID), move_forward, T+1) } :- track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), occupation(train(ID), (X,Y), T, DirFrom), DirFrom = DirTo, end(ID, _, Arr), T < Arr.
 % using numbers of direction, we can calculate possible directions with DirFrom modulo DirTo for move_left or move_right; +4, because clingo struggles with modulo of negative values
 % move_left is move_left if multiple DirTo exist
-{ action(train(ID), move_left, T+1) } :- track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), occupation(train(ID), (X,Y), T, DirFrom), direction(DirFrom, FromVal), direction(DirTo, ToVal), (FromVal - ToVal + 4) \ 4 = 3, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC != 1, end(ID, _, Arr), T < Arr.
+{ action(train(ID), move_left, T+1) } :- track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), occupation(train(ID), (X,Y), T, DirFrom), direction(DirFrom, FromVal), direction(DirTo, ToVal), (FromVal - ToVal + 4) \ 4 = 3, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC > 1, end(ID, _, Arr), T < Arr.
 % move_left is move_forward if exactly one DirTo exists
 { action(train(ID), move_forward, T+1) } :- track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), occupation(train(ID), (X,Y), T, DirFrom), direction(DirFrom, FromVal), direction(DirTo, ToVal), (FromVal - ToVal + 4) \ 4 = 3, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC = 1, end(ID, _, Arr), T < Arr.
 % move_right is move_right if multiple DirTo exist
-{ action(train(ID), move_right, T+1) } :- track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), occupation(train(ID), (X,Y), T, DirFrom), direction(DirFrom, FromVal), direction(DirTo, ToVal), (FromVal - ToVal + 4) \ 4 = 1, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC != 1, end(ID, _, Arr), T < Arr.
+{ action(train(ID), move_right, T+1) } :- track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), occupation(train(ID), (X,Y), T, DirFrom), direction(DirFrom, FromVal), direction(DirTo, ToVal), (FromVal - ToVal + 4) \ 4 = 1, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC > 1, end(ID, _, Arr), T < Arr.
 % move_right is move_forward if exactly one DirTo exists
 { action(train(ID), move_forward, T+1) } :- track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), occupation(train(ID), (X,Y), T, DirFrom), direction(DirFrom, FromVal), direction(DirTo, ToVal), (FromVal - ToVal + 4) \ 4 = 1, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC = 1, end(ID, _, Arr), T < Arr.
 % we could always wait (until time is over)
 %{ action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), _, T, _), end(ID, _, Arr), T < Arr.
 
-%action_count(T, AC) 
-%:- occupation(TID, _, T, _), AC = #count{ A : action(TID, A, T ) }, AC > 1.
 
 % only one action for each train at a time step
 :- action(train(ID), Action1, T), action(train(ID), Action2, T), Action1 != Action2.
@@ -132,7 +130,7 @@ occupation(train(ID), (X, Y), T+1, Dir) :- occupation(train(ID), (X,Y), T, Dir),
 % train has to be on track that exists
 :- occupation(_, (X,Y), _, _), not cell((X,Y), _). 
 :- occupation(_, (X,Y), _, _), cell((X,Y), 0).
-% two trains cannot be on the same track on the same time
+% two trains cannot be on the same tile on the same time
 :- occupation(train(ID1), (X,Y), T, _), occupation(train(ID2), (X,Y), T, _), ID1 < ID2.
 % or swap tiles within one time step
 :- occupation(train(ID1), (X1,Y1), T, _), occupation(train(ID2), (X2,Y2), T, _), occupation(train(ID1), (X2,Y2), T+1, _), occupation(train(ID2), (X1,Y1), T+1, _), ID1 < ID2.
@@ -147,12 +145,8 @@ occupation(train(ID), (X, Y), T+1, Dir) :- occupation(train(ID), (X,Y), T, Dir),
 :- end(ID, _, Arr), action(train(ID), _, T), T > Arr.
 
 %Minimize train journey times
-%action_count(AC) :- AC = #count{ TID, A, T: action(TID, A, T) }.
-%action_wait_count(AWC) :- AWC = #count{ TID, A, T: action(TID, T, T ), A = wait }.
-%#minimize { AC@1: action_count(AC) }.
 #minimize { 1, TID, A, T: action(TID, A, T) }.
 
-%&sum { AWC } <= 1 :- action_wait_count(AWC).
 
 %#show occupation/4.
 #show action/3.
