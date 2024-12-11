@@ -12,7 +12,7 @@
             "console": "integratedTerminal",
             "args": [
                 "railsched.lp",
-                "test.lp",
+                "test2.lp",
                 // "0"
             ]
         }

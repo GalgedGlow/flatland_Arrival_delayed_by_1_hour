@@ -94,15 +94,20 @@ track_from_to(TrackNum, DirFrom, DirTo) :- bit_value(D, TrackNum, 1), from_to(Di
 % move_right is move_forward if exactly one DirTo exists
 { action(train(ID), move_forward, T+1) } :- track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), occupation(train(ID), (X,Y), T, DirFrom), direction(DirFrom, FromVal), direction(DirTo, ToVal), (FromVal - ToVal + 4) \ 4 = 1, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC = 1, end(ID, _, Arr), T < Arr.
 % we could always wait (until time is over)
+%{ action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), _, T, _), end(ID, _, Arr), T < Arr, AC = #count{ 1, TA, TID : action(TID, wait, TA ) }, AC < 5.
 %{ action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), _, T, _), end(ID, _, Arr), T < Arr.
 
+
+%action_count(T, AC) 
+%:- occupation(TID, _, T, _), AC = #count{ A : action(TID, A, T ) }, AC > 1.
 
 % only one action for each train at a time step
 :- action(train(ID), Action1, T), action(train(ID), Action2, T), Action1 != Action2.
 %wait_action(T, AC) :- AC = #count{ T : action(TID, wait, T ) }, action(TID, A, T).
 
 %max n wait actions
-:- AC = #count{ T : action(TID, wait, T ) }, AC > 4.
+%wait_count(AC, TID2, T2) :- AC = #count{ 1, T, TID : action(TID, wait, T ) }, action(TID2, wait, T2 ), AC > 1.
+wait_count(AC, TID2, T2) :- AC = #count{ 1, T, TID : action(TID, wait, T) }, action(TID2, wait, T2).
 
 %------------------------------------------------------------------------------------------------------------------------------------------------------%
 
@@ -111,6 +116,16 @@ occupation(train(ID), (X,Y), Dep+1, Dir) :- start(ID, (X,Y), Dep, Dir).
 %and action of the past for whatever reason TODO: check if it works for each start time
 action(train(ID), wait, Dep) :- start(ID, _, Dep, _).
 action(train(ID), move_forward, Dep+1) :- start(ID, _, Dep, _).
+
+%Attempt: voluntary wait
+%dep(Wait+1, ID) :- Wait = #max { TT: action(train(ID), wait, TT) }, action(train(ID), wait, T).
+%occupation(train(ID), (X,Y), Dep, Dir) :- dep(Dep, ID), start(ID, (X,Y), _, Dir).
+%action(train(ID), move_forward, Dep) :- dep(Dep, ID), start(ID, _, _, _).
+
+%combine three lines
+%occupation(train(ID), (X,Y), WaitMax+1, Dir), action(train(ID), move_forward, WaitMax+1)
+% :- WaitMax = #max { TT: action(train(ID), wait, TT) }, action(train(ID), wait, T), start(ID, (X,Y), _, Dir).
+
 
 % regular move_forward if DirFrom = DirTo
 occupation(train(ID), (X + XChange, Y + YChange), T+1, DirTo) :- occupation(train(ID), (X,Y), T, DirFrom), action(train(ID), move_forward, T+1), move_x_y(DirTo, XChange, YChange), track_from_to(TrackNum, DirFrom, DirTo), cell((X,Y), TrackNum), DirFrom = DirTo.
@@ -150,9 +165,4 @@ occupation(train(ID), (X, Y), T+1, Dir) :- occupation(train(ID), (X,Y), T, Dir),
 
 %#show occupation/4.
 #show action/3.
-%#show action_count/2.
-%#show wait_action/1.
 
-
-%test
-:- end(ID, _, T), action(train(ID), _, T).

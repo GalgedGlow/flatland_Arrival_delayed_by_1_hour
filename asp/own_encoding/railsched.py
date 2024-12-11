@@ -48,15 +48,24 @@ class RailSchedApp(Application):
 
         # Find first Answer Set
 
-        max_wait_restriction = ":- max_wait_actions(N), action_wait_count(C), N <= C."
-        self.ctl.add("base", [], max_wait_restriction)
-        # self.ctl.ground("max_wait_restriction", [])
+        # max_wait_restriction = ":- max_wait_actions(N), action_wait_count(C), N <= C."
+        # self.ctl.add("base", [], max_wait_restriction)
 
-        max_wait_actions = 1
-        assert_string = f"max_wait_actions({max_wait_actions})"
-        self.ctl.assign_external(parse_term(assert_string), True)
+        # max_wait_actions = 1
+        # max_wait_atom = f"max_wait_actions({max_wait_actions})."
+        # self.ctl.assign_external(parse_term(max_wait_atom), True)
+        # generate_waits = "{ action(train(ID), wait, T+1) } <= 1 :- occupation(train(ID), _, T, _), end(ID, _, Arr), T < Arr, AC = #count{ 1, TA, TID : action(TID, wait, TA ) }, max_wait_atom(MW), AC < MW."
+        # f"max_wait_actions({max_wait_actions})"
+        
+        train_atom = "train(0). start(0,(13,20),6,w) :- train_0. end(0,(10,33),54) :- train_0. #external train_0."
+        self.ctl.add("base", [], train_atom)
+
         self.ctl.ground([("base", [])])
+        self.ctl.assign_external(parse_term("train_0"), True)
+
         self.ctl.solve(on_model=self.on_find_first_model)
+        
+        
         # self.find_optimum_of_last_stored()
 
         # while max_models != self.optimums_found:
