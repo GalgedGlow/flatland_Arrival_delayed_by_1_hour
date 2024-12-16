@@ -13,7 +13,8 @@
             "args": [
                 "railsched.lp",
                 "test2.lp",
-                // "0"
+                "0",
+                "-q"
             ]
         }
     ]

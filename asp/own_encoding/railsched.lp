@@ -160,7 +160,7 @@ occupation(train(ID), (X, Y), T+1, Dir) :- occupation(train(ID), (X,Y), T, Dir),
 :- end(ID, _, Arr), action(train(ID), _, T), T > Arr.
 
 %Minimize train journey times
-#minimize { 1, TID, A, T: action(TID, A, T) }.
+%#minimize { 1, TID, A, T: action(TID, A, T) }.
 
 
 %#show occupation/4.
