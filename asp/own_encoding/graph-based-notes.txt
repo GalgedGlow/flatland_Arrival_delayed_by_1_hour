@@ -1,0 +1,32 @@
+intersection:
+either:
+  is start
+  is end
+  track types: 2, 4, 5, 6
+  (for collision: 3)
+
+start at intersection
+go one possible direction
+collect and follow all "normal" tiles
+end at next intersection
+store collected "normal" tiles in new section
+
+make sure only one section at once
+start at first intersection (lowest X,Y)
+go one direction (first of NESW)
+map out section (s. above)
+again from first intersection choose next lowest NESW, map out onwards
+continue for each intersection foreach possible direction, but dont do sections multiple times
+
+
+every "normal" tile can be only in one intersection (except track type #3)
+
+
+intersection possible connections:
+other intersection
+non intersection
+
+section:
+has 2 ends, each connected to a respective intersection
+
+TODO: remove TID and only initiate with start and connect to end somehow
