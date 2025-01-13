@@ -29,4 +29,10 @@ non intersection
 section:
 has 2 ends, each connected to a respective intersection
 
-TODO: remove TID and only initiate with start and connect to end somehow
+TODO: (remove TID and only initiate with start and connect to end somehow)
+from starting intersection of move, check next non-intersection cell in the section_cells and figure out what action is necessary; then add move_forward actions until target intersectio is reached
+
+xxx
+___
+x|x
+x|x
