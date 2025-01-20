@@ -124,15 +124,15 @@ class RailSchedApp(Application):
         for i in range(0, len(self.agent_atoms_history)):
             self.agent_atoms_history[i] = list(reversed(self.agent_atoms_history[i]))
 
-        max_i = min(10, len(self.agent_atoms_history[0]))
-        max_j = min(10, len(self.agent_atoms_history[1]))
-        max_k = min(10, len(self.agent_atoms_history[2]))
-        max_l = min(10, len(self.agent_atoms_history[3]))
+        min_i = min(10, len(self.agent_atoms_history[0]))
+        min_j = min(10, len(self.agent_atoms_history[1]))
+        min_k = min(10, len(self.agent_atoms_history[2]))
+        min_l = min(10, len(self.agent_atoms_history[3]))
 
-        for i in range(0, max_i):
-            for j in range(0, max_j):
-                for k in range(0, max_k):
-                    for l in range(0, max_l):
+        for i in range(0, min_i):
+            for j in range(0, min_j):
+                for k in range(0, min_k):
+                    for l in range(0, min_l):
                         assert_content = self.agent_atoms_history[0][i] + self.agent_atoms_history[1][j] + self.agent_atoms_history[2][k] + self.agent_atoms_history[3][l]
 
                         assert_file = open("assert.lp", "w")
