@@ -1,0 +1,74 @@
+import streamlit as st
+import numpy as np
+
+# Train track visual elements (using Unicode for now)
+track_visuals = {
+    " ": "⬜",  # Empty tile
+    "━": "─",  # Horizontal track
+    "┃": "│",  # Vertical track
+    "┏": "┌",  # Curve (Top-Left)
+    "┓": "┐",  # Curve (Top-Right)
+    "┗": "└",  # Curve (Bottom-Left)
+    "┛": "┘",  # Curve (Bottom-Right)
+    "╋": "┼",  # Junction
+    "S": "🅢", # Station
+    "T": "🚂"  # Train
+}
+
+st.title("🚆 Railway Track Editor")
+
+# Grid Size Input
+rows = st.number_input("Enter number of rows", min_value=5, max_value=20, value=10)
+cols = st.number_input("Enter number of columns", min_value=5, max_value=20, value=10)
+
+# Initialize grid in session state
+if "grid" not in st.session_state or st.session_state.grid.shape != (rows, cols):
+    st.session_state.grid = np.full((rows, cols), " ", dtype="<U1")
+
+st.write("### Design Railway Grid")
+
+# Editable Grid
+edited_grid = []
+for r in range(rows):
+    row_data = []
+    cols_data = st.columns(cols)  # Creates interactive columns
+    for c in range(cols):
+        selected = cols_data[c].selectbox(
+            f"({r},{c})",
+            options=list(track_visuals.keys()),
+            format_func=lambda x: x if x == " " else f"{x} ({track_visuals[x]})",
+            key=f"tile_{r}_{c}",
+            index=list(track_visuals.keys()).index(st.session_state.grid[r, c])
+        )
+        row_data.append(selected)
+    edited_grid.append(row_data)
+
+# Update session state with new grid
+st.session_state.grid = np.array(edited_grid, dtype="<U1")
+
+# Function to render the grid with visuals
+def render_html_grid(grid):
+    html = "<table style='border-collapse: collapse;'>"
+    for row in grid:
+        html += "<tr>"
+        for cell in row:
+            html += f"<td style='width: 30px; height: 30px; text-align: center; font-size: 24px; border: 1px solid black;'>{track_visuals[cell]}</td>"
+        html += "</tr>"
+    html += "</table>"
+    return html
+
+# Render Railway Grid as Visual Table
+st.write("### Current Railway Grid")
+st.markdown(render_html_grid(st.session_state.grid), unsafe_allow_html=True)
+
+# Function to save the grid as an LP file
+#def save_to_lp(grid):
+#    lp_data = "\n".join("".join(row) for row in grid)
+#    with open("railway_map.lp", "w") as f:
+#        f.write(lp_data)
+#    return "railway_map.lp"
+
+# Download Button
+#if st.button("📥 Download .lp File"):
+#    lp_file = save_to_lp(st.session_state.grid)
+#    st.download_button("Download Railway Map", data=open(lp_file, "rb").read(), file_name="railway_map.lp")
