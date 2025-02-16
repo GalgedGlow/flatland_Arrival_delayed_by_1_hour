@@ -1,0 +1,105 @@
+intersection:
+either:
+  is start
+  is end
+  track types: 2, 4, 5, 6
+  (for collision: 3)
+
+start at intersection
+go one possible direction
+collect and follow all "normal" tiles
+end at next intersection
+store collected "normal" tiles in new section
+
+make sure only one section at once
+start at first intersection (lowest X,Y)
+go one direction (first of NESW)
+map out section (s. above)
+again from first intersection choose next lowest NESW, map out onwards
+continue for each intersection foreach possible direction, but dont do sections multiple times
+
+
+every "normal" tile can be only in one intersection (except track type #3)
+
+
+intersection possible connections:
+other intersection
+non intersection
+
+section:
+has 2 ends, each connected to a respective intersection
+
+TODO: (remove TID and only initiate with start and connect to end somehow)
+from starting intersection of move, check next non-intersection cell in the section_cells and figure out what action is necessary; then add move_forward actions until target intersectio is reached
+
+xxx
+___
+x|x
+x|x
+
+
+
+
+
+given: x/y change, DirFrom
+get: DirTo -> y-1=n x+1=e, y+1=s, x-1=w
+
+
+        0 1 2 3
+        n e s w
+ 0  1 n =
+-1  0 e   =
+ 0 -1 s     =
+ 1  0 w       =
+
+
+intersection(A,B)
+move(TID1, (A,B), Dep1, Arr1)
+in_intersection(TID1, (A,B), Dep1), in_intersection(TID1, (A,B), Dep1+1), ..., in_intersection(TID1, (A,B), Arr1+1)
+move(TID2, (B,A), Dep2, Arr2)
+...
+:- in_intersection(TID1, (A,B), T), in_intersection(TID2, (A,B), T). TID1!=TID2
+
+  Dep Arr
+A 0   3
+B 2   5
+
+  Dep Arr
+A 0   2
+B 2   5
+
+  Dep Arr
+A 8   10
+B 2   5
+
+  Dep Arr
+A 2   10
+B 2   5
+
+
+has to hold: DepA>ArrB; DepB>ArrA
+
+move(TID1, (A,B), Dep1, Arr1)
+move(TID2, (B,A), Dep2, Arr2)
+not Dep2<=Dep1<=Arr2 AndOr
+not Dep2<=Arr1<=Arr2
+
+move(TID1, (_,B), Arr1)
+move(TID2, (_,B), Arr2)
+not Arr1=Arr2
+
+
+
+TODO: 
+collision:
+consider Track Type #3 as intersection in terms of colliding
+for the above and all intersections: do not allow multiple trains on the same one at the same time
+
+
+
+
+
+
+
+
+
