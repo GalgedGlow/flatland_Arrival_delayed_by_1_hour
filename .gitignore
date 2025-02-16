@@ -1,0 +1,11 @@
+tmp/frames/
+output/
+asp/own_encoding/test2.lp
+asp/own_encoding/testing.lp
+asp/own_encoding/first_demo.lp
+asp/own_encoding/testing.lp
+asp/own_encoding/assert.lp
+envs/lp
+envs/pkl
+envs/png
+envs/__pycache__

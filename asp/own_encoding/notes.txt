@@ -1,0 +1,3 @@
+try with minimize action wait
+else try theory atoms in clingo api, start with action wait <= 1, increase by 1 each time until SAT
+else try change railsched.lp to never wait when deciding action (except first move); run in clingo api, if it fails allow 1..x waits
