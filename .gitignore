@@ -9,3 +9,5 @@ envs/lp
 envs/pkl
 envs/png
 envs/__pycache__
+modules/__pycache__
+asp/__pycache__
