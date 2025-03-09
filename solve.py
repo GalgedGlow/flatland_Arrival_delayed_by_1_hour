@@ -1,10 +1,11 @@
 # standard packages
 import warnings
-import os 
+import os
 import time
 import pickle
 import json
 from argparse import ArgumentParser, Namespace
+from typing import List
 
 # custom modules
 from asp import params
@@ -37,7 +38,7 @@ class MalfunctionManager():
             self.malfunctions[i] = (self.malfunctions[i][0], self.malfunctions[i][1] - 1)
             if self.malfunctions[i][1] == 0:
                 malfunctions_to_remove.append(i)
-        
+
         # delete expired malfunctions
         for i in sorted(malfunctions_to_remove, reverse=True):
             del self.malfunctions[i]
@@ -57,11 +58,14 @@ class MalfunctionManager():
 
 
 class SimulationManager():
+    persisted_atoms : List[str] = []
+    first_time = True
+
     def __init__(self,env,primary,secondary=None):
         self.env = env
         self.primary = primary
         if secondary is None:
-            self.secondary = primary 
+            self.secondary = primary
         else:
             self.secondary = secondary
 
@@ -70,23 +74,34 @@ class SimulationManager():
         # pass env, primary
         app = FlatlandPlan(self.env, None)
         clingo_main(app, self.primary)
+
         return(app.action_list)
 
-    def provide_context(self, actions, timestep, malfunctions) -> str:
+    def provide_context(self, actions, timestep, new_malfunctions, all_malfunctions) -> str:
         """ provide additional facts when updating list """
         # actions that have already been executed
         # wait actions that are enforced because of malfunctions
         # future actions that were previously planned
+
         past = convert_formers_to_clingo(actions[:timestep])
-        present = convert_malfunctions_to_clingo(malfunctions, timestep)
+        present, malfunctions = convert_malfunctions_to_clingo(all_malfunctions, new_malfunctions, timestep)
         future = convert_futures_to_clingo(actions[timestep:])
-        return(past + present + future)
+
+        print("past" + str(past) + "present" + str(present))
+        # if self.first_time:
+        #     self.persisted_atoms += present
+        #     # self.first_time = False
+        # self.persisted_atoms += past
+        self.persisted_atoms += malfunctions
+
+        return(past+present+self.persisted_atoms) #not future, this will be done by clingo
+        # return(past + present + future)
 
     def update_actions(self, context) -> list:
         """ update list of actions following malfunction """
         # pass env, secondary, context
         app = FlatlandPlan(self.env, context)
-        clingo_main(app, self.primary)
+        clingo_main(app, self.primary) #always uses solving clingo files specified in params.py
         return(app.action_list)
 
 
@@ -120,11 +135,11 @@ def check_params(par):
     for param, expected_type in required_params.items():
         if not hasattr(par, param):
             raise ValueError(f"Required parameter '{param}' is missing from the params module")
-            
+
         else:
             # check for correct types
             value = getattr(par, param)
-        
+
             if not isinstance(value, expected_type):
                 raise TypeError(f"Parameter '{param}' should be of type {expected_type.__name__}, but got {type(value).__name__}")
 
@@ -140,6 +155,7 @@ def get_args():
 
 
 def main():
+    print("starting main...")
     # dev test main
     if check_params(params):
         args: Namespace = get_args()
@@ -167,6 +183,7 @@ def main():
     actions = sim.build_actions()
 
     timestep = 0
+    all_malfs: list = []
     while len(actions) > timestep:
         # add to the log
         for a in actions[timestep]:
@@ -180,14 +197,22 @@ def main():
             break
 
         # check for new malfunctions
-        new_malfs = mal.check(info)
+        is_new_malfs = mal.check(info)
+        new_malfs = mal.get()
 
-        if len(new_malfs) > 0:
-            context = sim.provide_context(actions, timestep, mal.get())
+
+
+
+        if len(is_new_malfs) > 0:
+            for new_malf in new_malfs:
+                print(f"new malf: train - {new_malf[0]}, duration - {new_malf[1]}, timestep - {timestep}")
+                all_malfs.append(new_malf)
+
+            context = sim.provide_context(actions, timestep, new_malfs, all_malfs)
             actions = sim.update_actions(context)
 
         mal.deduct() #??? where in the loop should this go - before context?
-        
+
         # render an image
         filename = 'tmp/frames/flatland_frame_{:04d}.png'.format(timestep)
         if env_renderer is not None:
@@ -204,19 +229,19 @@ def main():
                     font = ImageFont.truetype("modules/LiberationMono-Regular.ttf", font_size)
                 except IOError:
                     font = ImageFont.load_default()
-                
+
                 # prepare text
                 text = f"{timestep}"
                 size = font.getbbox(text)
                 text_width = size[2]-size[0]
                 text_position = (img.width - text_width - padding, padding)
-                
+
                 # draw text borders
                 x, y = text_position
                 border_color = "black"
                 for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
                     draw.text((x + dx, y + dy), text, fill=border_color, font=font)
-                
+
                 # draw text
                 draw.text(text_position, text, fill="red", font=font)
                 img.save(filename)
@@ -229,7 +254,7 @@ def main():
     # get time stamp for gif and output log
     stamp = time.time()
     os.makedirs(f"output/{stamp}", exist_ok=True)
-    
+
     # combine images into gif
     if not no_render:
         imageio.mimsave(f"output/{stamp}/animation.gif", images, format='GIF', loop=0, duration=240)

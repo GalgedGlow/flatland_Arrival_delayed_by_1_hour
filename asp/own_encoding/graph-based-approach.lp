@@ -38,10 +38,23 @@ track(2136).
 track(6672).
 
 % divisors of each direction
-direction(n, 3).
-direction(e, 2).
-direction(s, 1).
-direction(w, 0).
+cardinal_direction(n, 3).
+cardinal_direction(e, 2).
+cardinal_direction(s, 1).
+cardinal_direction(w, 0).
+
+% move direction (from cardinal direction change)
+move_direction(0, move_forward).
+move_direction(1, move_right).
+move_direction(3, move_left).
+
+% move_left or move_right is move_forward
+is_move_forward(1, move_forward, move_forward). %if one move possible it is move_forward
+is_move_forward(1, move_left, move_forward). %if one move possible it is move_forward
+is_move_forward(1, move_right, move_forward). %if one move possible it is move_forward
+is_move_forward(2, move_forward, move_forward). %if one move possible it is move_forward
+is_move_forward(2, move_left, move_left). %if two moves possible it stays move_left
+is_move_forward(2, move_right, move_right). %if two moves possible it stays move_right
 
 % convert direction to coordinate change
 move_x_y(n, -1, 0).
@@ -63,94 +76,10 @@ bit(Bit-1, TrackNum, Remainder\(2**Bit)) :- bit(Bit, TrackNum, Remainder), Bit >
 bit_value(Bit, TrackNum, Remainder/(2**Bit)) :- bit(Bit, TrackNum, Remainder).
 
 %map each bit to a from_to direction
-from_to(DirFrom, DirTo, D) :- direction(DirFrom, D/4), direction(DirTo, D\4), divisor(D).
+from_to(DirFrom, DirTo, D) :- cardinal_direction(DirFrom, D/4), cardinal_direction(DirTo, D\4), divisor(D).
 
 %use direction mapping and bit values to generate valid directions for each track
 track_from_to(TrackNum, DirFrom, DirTo) :- bit_value(D, TrackNum, 1), from_to(DirFrom, DirTo, D).
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Arranging Sections and Intersections %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%Assigning Intersections
-%intersection((X,Y), ID) -- ID is train-specific intersection
-intersection((X,Y), -1) :- cell((X,Y), Track), Track!=0, Track!=32800, Track!=1025, Track!=4608, Track!=16386, Track!=72, Track!=2064.
-intersection((X,Y), ID) :- start(ID,(X,Y), _, _).
-intersection((X,Y), ID) :- end(ID,(X,Y), _).
-
-% from intersection to intersection
-% intersection(intersection_from_tuple, intersection_to_tuple, DirFrom, TID1, Time)
-%TODO: simplify using xy_change_direction/4
-intersection((X1,Y1), (X2,Y2), DirFrom, DirTo, TID1, 1) :- intersection((X1,Y1), TID1), cell((X1,Y1), Track1), intersection((X2,Y2), TID2), cell((X2,Y2), _), track_from_to(Track1, DirFrom, DirTo), DirTo=n, Y1=Y2, X1=X2+1.
-intersection((X1,Y1), (X2,Y2), DirFrom, DirTo, TID1, 1) :- intersection((X1,Y1), TID1), cell((X1,Y1), Track1), intersection((X2,Y2), TID2), cell((X2,Y2), _), track_from_to(Track1, DirFrom, DirTo), DirTo=e, Y1=Y2-1, X1=X2.
-intersection((X1,Y1), (X2,Y2), DirFrom, DirTo, TID1, 1) :- intersection((X1,Y1), TID1), cell((X1,Y1), Track1), intersection((X2,Y2), TID2), cell((X2,Y2), _), track_from_to(Track1, DirFrom, DirTo), DirTo=s, Y1=Y2, X1=X2-1.
-intersection((X1,Y1), (X2,Y2), DirFrom, DirTo, TID1, 1) :- intersection((X1,Y1), TID1), cell((X1,Y1), Track1), intersection((X2,Y2), TID2), cell((X2,Y2), _), track_from_to(Track1, DirFrom, DirTo), DirTo=w, Y1=Y2+1, X1=X2.
-
-% from intersection to cell
-% section_cell(intersection_from_tuple, some_section_tuple, track_of_some_section_tuple)
-% Track2 := Track of connecting cell for adding more cells later
-% DirFrom := Direction the first intersection is entered
-section_cell((X1,Y1), (X2,Y2), Track2, DirFrom, TID) :- intersection((X1,Y1), TID), cell((X1,Y1), Track1), cell((X2,Y2), Track2), track_from_to(Track1, DirFrom, DirTo), DirTo=n, Y1=Y2, X1=X2+1, not intersection((X2,Y2), _).
-section_cell((X1,Y1), (X2,Y2), Track2, DirFrom, TID) :- intersection((X1,Y1), TID), cell((X1,Y1), Track1), cell((X2,Y2), Track2), track_from_to(Track1, DirFrom, DirTo), DirTo=e, Y1=Y2-1, X1=X2, not intersection((X2,Y2), _).
-section_cell((X1,Y1), (X2,Y2), Track2, DirFrom, TID) :- intersection((X1,Y1), TID), cell((X1,Y1), Track1), cell((X2,Y2), Track2), track_from_to(Track1, DirFrom, DirTo), DirTo=s, Y1=Y2, X1=X2-1, not intersection((X2,Y2), _).
-section_cell((X1,Y1), (X2,Y2), Track2, DirFrom, TID) :- intersection((X1,Y1), TID), cell((X1,Y1), Track1), cell((X2,Y2), Track2), track_from_to(Track1, DirFrom, DirTo), DirTo=w, Y1=Y2+1, X1=X2, not intersection((X2,Y2), _).
-
-% from section cell to other cell
-% Track2 := Track of connecting cell for adding more cells later
-% DirFrom := Direction the first intersection is entered
-section_cell((X0,Y0), (X2,Y2), Track2, DirFrom, TID) :- section_cell((X0,Y0), (X1,Y1), Track1, DirFrom, TID), cell((X2,Y2), Track2), track_from_to(Track1, _, DirTo), DirTo=n, Y1=Y2, X1=X2+1, not intersection((X2,Y2), _).
-section_cell((X0,Y0), (X2,Y2), Track2, DirFrom, TID) :- section_cell((X0,Y0), (X1,Y1), Track1, DirFrom, TID), cell((X2,Y2), Track2), track_from_to(Track1, _, DirTo), DirTo=e, Y1=Y2-1, X1=X2, not intersection((X2,Y2), _).
-section_cell((X0,Y0), (X2,Y2), Track2, DirFrom, TID) :- section_cell((X0,Y0), (X1,Y1), Track1, DirFrom, TID), cell((X2,Y2), Track2), track_from_to(Track1, _, DirTo), DirTo=s, Y1=Y2, X1=X2-1, not intersection((X2,Y2), _).
-section_cell((X0,Y0), (X2,Y2), Track2, DirFrom, TID) :- section_cell((X0,Y0), (X1,Y1), Track1, DirFrom, TID), cell((X2,Y2), Track2), track_from_to(Track1, _, DirTo), DirTo=w, Y1=Y2+1, X1=X2, not intersection((X2,Y2), _).
-
-
-% from section cell to intersection (to get arriving direction)
-% DirTo := outgoing direction from section to other intersection
-arriving_direction((X0,Y0), (X2,Y2), DirTo) :- section_cell((X0,Y0), (X1,Y1), Track1, _, _), intersection((X2,Y2), _), track_from_to(Track1, _, DirTo), DirTo=n, Y1=Y2, X1=X2+1.
-arriving_direction((X0,Y0), (X2,Y2), DirTo) :- section_cell((X0,Y0), (X1,Y1), Track1, _, _), intersection((X2,Y2), _), track_from_to(Track1, _, DirTo), DirTo=e, Y1=Y2-1, X1=X2.
-arriving_direction((X0,Y0), (X2,Y2), DirTo) :- section_cell((X0,Y0), (X1,Y1), Track1, _, _), intersection((X2,Y2), _), track_from_to(Track1, _, DirTo), DirTo=s, Y1=Y2, X1=X2-1.
-arriving_direction((X0,Y0), (X2,Y2), DirTo) :- section_cell((X0,Y0), (X1,Y1), Track1, _, _), intersection((X2,Y2), _), track_from_to(Track1, _, DirTo), DirTo=w, Y1=Y2+1, X1=X2.
-
-% combine section_cells to get a connection between two intersections through all passed section cells
-section_cell(A, B, C, Track, DirFrom1, DirTo, TID1) :- section_cell(A, C, Track, DirFrom1, TID1), section_cell(B, C, Track, DirFrom2, TID2), A!=B, arriving_direction(A, B, DirTo).
-
-% create intersection from section_cell connection and its cell count
-intersection(A, B, DirFrom, DirTo, TID, SCC+1) :- SCC = #count{ C: section_cell(A, B, C, _, DirFrom, DirTo, TID) }, section_cell(A, B, _, _, DirFrom, DirTo, TID).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Agent movement %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% move(TID, A, B, ArrivalTime, DirFrom, DirTo)
-% Always move from start as only one direction is possible
-move(TID, (X1,Y1), B, Dep + 2, Dep + Duration + 2, StartDir, DirTo) :- start(TID, (X1,Y1), Dep, StartDir), section_cell((X1,Y1), B, (X2,Y2), _, _, _, _), xy_change_direction(X1-X2, Y1-Y2, DirTo, _), intersection((X1,Y1), B, DirFrom, _, TID, Duration), StartDir=DirFrom.
-%DirTo: Direction that train moves to when entering the intersection (necessary if there are mutiple direct connections between two intersections)
-% move allowed if DirTo from incoming intersection equals a DirFrom of the destination intersection
-% intersections next to each other
-{ move(TID, (X1,Y1), (X2,Y2), Arr, Arr + Duration, DirFrom, DepDirTo) } :- move(TID, X, (X1,Y1), Dep, Arr, _, _), intersection(X, (X1,Y1), _, DirTo, _, _), xy_change_direction(X1-X2, Y1-Y2, DepDirTo, _), intersection((X1,Y1), (X2,Y2), DirFrom, _, -1, Duration), DirTo=DirFrom, end(TID, _, ReqArr), Arr + Duration <= ReqArr.
-% through at least one section cell
-{ move(TID, (X1,Y1), B, Arr, Arr + Duration, DirFrom, DepDirTo) } :- move(TID, X, (X1,Y1), Dep, Arr, _, _), intersection(X, (X1,Y1), _, DirTo, _, _), section_cell((X1,Y1), B, (X2,Y2), _, _, _, _), xy_change_direction(X1-X2, Y1-Y2, DepDirTo, _), intersection((X1,Y1), B, DirFrom, _, -1, Duration), DirTo=DirFrom, end(TID, _, ReqArr), Arr + Duration <= ReqArr.
-%DepDirTo: equals DirTo in move above
-%DirFrom: how destination intersection is reached
-
-% only one move at a time step for same train
-:- move(TID, A, B, Dep, _, _, _), move(TID, A, C, Dep, _, _, _), B!=C.
-
-% reach destination...
-:- end(TID, Dest, _), not move(TID, _, Dest, _, _, _, _).
-
-% ... in time (TODO: is this necessary? maybe only statement below required)
-:- end(TID, Dest, ReqArr), move(TID, _, Dest, _, ActualArr, _, _), ReqArr <= ActualArr.
-
-% ... don't move after
-:- end(TID, _, ReqArr), move(TID, _, _, _, Arr, _, _), ReqArr <= Arr.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Optimize %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% ma(MA) :- MA = #max { Arr: move(TID, A, B, Arr, DirFrom) }.
-% #minimize { MA: ma(MA) }.
-
-%Minimize train journey times
-#minimize { 1, TID, A, T: action(TID, A, T) }.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Conversion to Actions %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %xy_change_direction(XDiff,YDiff,Dir,NumericDir) for x1-x2, y1-y2
 %Dir: Direction after move ends
@@ -159,76 +88,197 @@ xy_change_direction(0,-1,e,2).
 xy_change_direction(-1,0,s,1).
 xy_change_direction(0,1,w,0).
 
-% Create Move Action for moves at the intersection it starts from
+%extra arrival time due to malfunctions
+malfunction_extra_time(ID, 0) :- train(ID).
 
-% initial actions for each train
-action(train(ID), wait, Dep) :- start(ID, _, Dep, _).
-action(train(ID), move_forward, Dep+1) :- start(ID, _, Dep, _).
+%%%%%%%%%%%%%%%%%% Next try %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%% from intersection to intersection
+%Assigning Intersections
+%intersection((X,Y)
+intersection((X,Y)) :- cell((X,Y), Track), Track!=0, Track!=32800, Track!=1025, Track!=4608, Track!=16386, Track!=72, Track!=2064.
+intersection((X,Y)) :- start(_,(X,Y), _, _).
+intersection((X,Y)) :- end(_,(X,Y), _).
 
-% normal move_forward
-action(train(TID), move_forward, Dep) :- move(TID, (X1,Y1), (X2,Y2), Dep, Arr, DirFrom, DirTo),  intersection((X1,Y1), (X2,Y2), DirFrom, DirTo, _, 1), DirFrom=DirTo, xy_change_direction(X1-X2, Y1-Y2, DirTo, _).
 
-% left is move_left
-action(train(TID), move_left, Dep) :- move(TID, (X1,Y1), (X2,Y2), Dep, Arr, DirFrom, DirTo),  intersection((X1,Y1), (X2,Y2), DirFrom, DirTo, _, 1), cell((X1,Y1), TrackNum), direction(DirTo, ToVal),
-direction(DirFrom, FromVal), (FromVal - ToVal + 4) \ 4 = 3, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC > 1, xy_change_direction(X1-X2, Y1-Y2, DirTo, ToVal).
+% next to other intersection
 
-% left is move_forward
-action(train(TID), move_forward, Dep) :- move(TID, (X1,Y1), (X2,Y2), Dep, Arr, DirFrom, DirTo),  intersection((X1,Y1), (X2,Y2), DirFrom, DirTo, _, 1), cell((X1,Y1), TrackNum), direction(DirTo, ToVal),
-direction(DirFrom, FromVal), (FromVal - ToVal + 4) \ 4 = 3, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC = 1, xy_change_direction(X1-X2, Y1-Y2, DirTo, ToVal).
+% treat destination as section_cell in order to simplify move generation
+section_cell((X1,Y1), (X2,Y2), (X2,Y2), Track2, DirFrom, DirTo, AdjustedMove) :-
+    cell((X1,Y1), Track1), intersection((X1,Y1)),
+    cell((X2,Y2), Track2), intersection((X2,Y2)), 
+    track_from_to(Track1, DirFrom, DirTo), 
+    xy_change_direction(X1-X2,Y1-Y2,DirTo,_),
+    cardinal_direction(DirFrom, FromValue),
+    cardinal_direction(DirTo, ToValue),
+    move_direction((FromValue - ToValue + 4) \ 4, Move), %left/right/forward
+    DTC = #count{ DirToC: track_from_to(Track1, DirFrom, DirToC) }, %for converting to move_forward
+    is_move_forward(DTC, Move, AdjustedMove).
 
-% right is move_right
-action(train(TID), move_right, Dep) :- move(TID, (X1,Y1), (X2,Y2), Dep, Arr, DirFrom, DirTo),  intersection((X1,Y1), (X2,Y2), DirFrom, DirTo, _, 1), cell((X1,Y1), TrackNum), direction(DirTo, ToVal),
-direction(DirFrom, FromVal), (FromVal - ToVal + 4) \ 4 = 1, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC > 1, xy_change_direction(X1-X2, Y1-Y2, DirTo, ToVal).
+% through non-intersections
 
-% right is move_forward
-action(train(TID), move_forward,Dep) :- move(TID, (X1,Y1), (X2,Y2), Dep, Arr, DirFrom, DirTo),  intersection((X1,Y1), (X2,Y2), DirFrom, DirTo, _, 1), cell((X1,Y1), TrackNum), direction(DirTo, ToVal),
-direction(DirFrom, FromVal), (FromVal - ToVal + 4) \ 4 = 1, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC = 1, xy_change_direction(X1-X2, Y1-Y2, DirTo, ToVal).
+%section_cell(A, C, Track2, DirFrom, FromAction)
+section_cell((X1,Y1), (X2,Y2), Track2, DirFrom, AdjustedMove) :- 
+    cell((X1,Y1), Track1), intersection((X1,Y1)), 
+    cell((X2,Y2), Track2), not intersection((X2,Y2)),
+    track_from_to(Track1, DirFrom, DirTo),
+    xy_change_direction(X1-X2,Y1-Y2,DirTo,_),
+    cardinal_direction(DirFrom, FromValue),
+    cardinal_direction(DirTo, ToValue),
+    move_direction((FromValue - ToValue + 4) \ 4, Move),
+    DTC = #count{ DirToC: track_from_to(Track1, DirFrom, DirToC) },
+    is_move_forward(DTC, Move, AdjustedMove).
 
-%%% from intersection to section_cell
+% from section cell to other cell
+% Track2 := Track of connecting cell for adding more cells later
+% DirFrom := Direction the first intersection is entered
+section_cell((X0,Y0), (X2,Y2), Track2, DirFrom, Move) :- 
+    section_cell((X0,Y0), (X1,Y1), Track1, DirFrom, Move), 
+    cell((X2,Y2), Track2), not intersection((X2,Y2)),
+    % cell connects to existing section_cell
+    track_from_to(Track1, _, DirTo), xy_change_direction(X1-X2,Y1-Y2,DirTo,_).
 
-%TODO: remove intersection atom with Dur
-% normal move_forward
-action(train(TID), move_forward, Dep) :- move(TID, (X1,Y1), B, Dep, Arr, DirFrom, DirTo), section_cell((X1,Y1), B, (X2,Y2), _, DirFrom, _, _),
-intersection((X1,Y1), B, _, _, _, Dur), xy_change_direction(X1-X2, Y1-Y2, DirTo, _), DirFrom=DirTo.
+% from section cell to intersection (to get arriving direction)
+% DirTo := outgoing direction from section to other intersection
+arriving_direction((X0,Y0), (X2,Y2), DirTo, Move) :- 
+    section_cell((X0,Y0), (X1,Y1), Track1, _, Move), 
+    intersection((X2,Y2)), 
+    track_from_to(Track1, _, DirTo), 
+    xy_change_direction(X1-X2,Y1-Y2,DirTo,_),
+    (X0,Y0) != (X2,Y2).
 
-% left is move_left
-action(train(TID), move_left, Dep) :- move(TID, (X1,Y1), B, Dep, Arr, DirFrom, DirTo), section_cell((X1,Y1), B, (X2,Y2), _, DirFrom, _, _),
-intersection((X1,Y1), B, _, _, _, Dur), cell((X1,Y1), TrackNum), xy_change_direction(X1-X2, Y1-Y2, DirTo, ToVal),
-direction(DirFrom, FromVal), (FromVal - ToVal + 4) \ 4 = 3, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC > 1.
+% combine section_cells to get a connection between two intersections through all passed section cells
+section_cell(A, B, C, Track, DirFrom1, DirTo, Move) :- 
+    section_cell(A, C, Track, DirFrom1, Move), 
+    section_cell(B, C, Track, DirFrom2, _), 
+    arriving_direction(A, B, DirTo, Move).
 
-% left is move_forward
-action(train(TID), move_forward, Dep) :- move(TID, (X1,Y1), B, Dep, Arr, DirFrom, DirTo), section_cell((X1,Y1), B, (X2,Y2), _, DirFrom, _, _),
-intersection((X1,Y1), B, _, _, _, Dur), cell((X1,Y1), TrackNum), xy_change_direction(X1-X2, Y1-Y2, DirTo, ToVal),
-direction(DirFrom, FromVal), (FromVal - ToVal + 4) \ 4 = 3, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC = 1.
+%add Destination as section_cell (this is important to make connections without section_cells equal to connections with section_cells)
+section_cell(A, B, B, Track, DirFrom, DirTo, Move):-
+    section_cell(A, B, _, _, DirFrom, DirTo, Move),
+    cell(B, Track).
 
-% right is move_right
-action(train(TID), move_right, Dep) :- move(TID, (X1,Y1), B, Dep, Arr, DirFrom, DirTo), section_cell((X1,Y1), B, (X2,Y2), _, DirFrom, _, _), 
-intersection((X1,Y1), B, _, _, _, Dur), cell((X1,Y1), TrackNum), xy_change_direction(X1-X2, Y1-Y2, DirTo, ToVal),
-direction(DirFrom, FromVal), (FromVal - ToVal + 4) \ 4 = 1, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC > 1.
+% create intersection from section_cell connection and its cell count
+intersection(A, B, DirFrom, DirTo, Move, SCC) :- 
+    SCC = #count{ C: section_cell(A, B, C, _, DirFrom, DirTo, Move) }, 
+    section_cell(A, B, _, _, DirFrom, DirTo, Move).
 
-% right is move_forward
-action(train(TID), move_forward, Dep) :- move(TID, (X1,Y1), B, Dep, Arr, DirFrom, DirTo), section_cell((X1,Y1), B, (X2,Y2), _, DirFrom, _, _), 
-intersection((X1,Y1), B, _, _, _, Dur), cell((X1,Y1), TrackNum), xy_change_direction(X1-X2, Y1-Y2, DirTo, ToVal),
-direction(DirFrom, FromVal), (FromVal - ToVal + 4) \ 4 = 1, DTC = #count{ DirToC: track_from_to(TrackNum, DirFrom, DirToC) }, DTC = 1.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Agent movement %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%
+%first move from start
+move(TID, (X1,Y1), B, LatestDep + 2, LatestDep + 2, Duration, StartDir, DirTo, Move) :- 
+    start(TID, (X1,Y1), _, StartDir),
+    LatestDep = #max { Dep: start(TID, (X1,Y1), Dep, StartDir) }, 
+    intersection((X1,Y1), B, StartDir, DirTo, Move, Duration).
 
-action(train(TID), move_forward, Dep+1..Arr-1) :- move(TID, X, A, _, Dep, _, _), move(TID, A, B, _, Arr, _, _).
-action(train(TID), move_forward, Dep+1..Arr-1) :- start(TID, A, Dep-1, _), move(TID, A, B, _, Arr, _, _).
+{ move(TID, (X1,Y1), B, Arr, Arr, Duration, DirFrom, DirTo, Move) } :- 
+    move(TID, X, (X1,Y1), Dep, Arr, 0, _, DirFrom, _),
+    intersection((X1,Y1), B, DirFrom, DirTo, Move, Duration),
+    end(TID, _, ReqArr),
+    Arr + Duration <= ReqArr + MalExTime,
+    malfunction_extra_time(TID, MalExTime).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Collision %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%% Malfunction Stuff %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% check if train has to start by checking first forced move forward
+start(ID, A, Start-1, Dir) :- 
+    Start = #min { T: forced_action(train(ID), move_forward, T) }, 
+    forced_action(train(ID), move_forward, _), start(ID, A, _, Dir).
+
+% if train has no forced move actions, start must be after last wait actions if it exists
+start(ID, A, Start, Dir) :-
+    Start = #max { T: forced_action(train(ID), wait, T) },
+    not forced_action(train(ID), move_forward, _), start(ID, A, _, Dir).
+
+%is train disabled at T?
+%is_malfunction(TID, T, MalDur)
+{ is_malfunction(TID, 0..EndT, 0) } :- global(EndT), train(TID).
+is_malfunction(TID, T..T+Dur-1, Dur) :- clean_malfunction(TID, Dur, T).
+% one is_malfunction per timestep 
+:- global(EndT), train(TID), not is_malfunction(TID, 0..EndT, _).
+:- train(TID), is_malfunction(TID, T, IsMal1), is_malfunction(TID, T, IsMal2), IsMal1!=IsMal2.
+
+% we need to merge malfunctions that overlap or are included in other
+malfunction_merge(TID, LastArr-T1, T1) :- 
+    malfunction(TID, Dur1, T1), malfunction(TID, Dur2, T2),
+    LastArr = #max { Dur1+T1; Dur2+T2 },
+    (Dur1,T1)!=(Dur2,T2),
+    T1<=T2,
+    T1+Dur1>=T2.
+ 
+overlap(TID, Dur1, T1, Dur2, T2) :- 
+    malfunction(TID, Dur1, T1), malfunction(TID, Dur2, T2),
+    (Dur1,T1)!=(Dur2,T2),
+    T1<=T2,
+    T1+Dur1>=T2.
+
+clean_malfunction(TID, Dur, T):- malfunction_merge(TID, Dur, T).
+clean_malfunction(TID, Dur, T):- 
+    malfunction(TID, Dur, T), 
+    not overlap(TID, _, _, Dur, T), 
+    not overlap(TID, Dur, T, _, _).
+
+% check for malfunctions to increase move duration
+
+% no mal at Arr
+move(TID, A, B, Dep, Arr+1, MovesLeft-1, DirFrom, DirTo, Move) :-
+    is_malfunction(TID, Arr, Dur),
+    move(TID, A, B, Dep, Arr, MovesLeft, DirFrom, DirTo, Move),
+    Dur=0,
+    MovesLeft > 0.
+
+% mal at Arr
+move(TID, A, B, Dep, Arr+1, MovesLeft, DirFrom, DirTo, Move) :-
+    is_malfunction(TID, Arr, Dur),
+    move(TID, A, B, Dep, Arr, MovesLeft, DirFrom, DirTo, Move),
+    Dur>0,
+    MovesLeft > 0.
+
+%%%%%%%% Action Conversion %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+action(train(TID), wait, 0..LatestDep) :- train(TID), LatestDep = #max { Dep: start(TID, (X1,Y1), Dep, StartDir) }. %start wait
+action(train(TID), move_forward, LatestDep+1) :- train(TID), LatestDep = #max { Dep: start(TID, (X1,Y1), Dep, StartDir) }. %spawn move_forward
+{ action(train(TID), Move, Dep) } :- move(TID, _, _, Dep, _, 0, _, _, Move). %convert moves to actions
+{ action(train(TID), move_forward, Dep+1..Arr-1) } :- move(TID, _, _, Dep, Arr, 0, _, _, _). %fill move_forward in connections
+
+% Enforce wait action for new malfunction
+action(train(TID), wait, T..T+Dur-1) :- clean_malfunction(TID, Dur, T).
+
+%%%%%%%%%% Integrity Constraints %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Exactly one action at a time
+:- action(TID, A1, T), action(TID, A2, T), A1!=A2.
+:- end(TID, X, _), move(TID, _, X, _, Arr, 0, _, _, _), not action(train(TID), _, 0..Arr-1).
+
+% no overlapping moves
+:- move(TID, A1, B1, Dep1, Arr1, 0, DirFrom1, DirTo1, Move1), 
+    move(TID, A2, B2, Dep2, Arr2, 0, DirFrom2, DirTo2, Move2),
+    Arr1!=Arr2, Dep1!=Dep2, Arr1 > Dep2, Arr2 > Dep1.
+
+% no moves to different directions at same time
+:- move(TID, A1, B1, Dep, Arr1, 0, DirFrom1, DirTo1, Move1), 
+    move(TID, A2, B2, Dep, Arr2, 0, DirFrom2, DirTo2, Move2), B1!=B2.
+
+% reach destination...
+:- end(TID, Dest, _), not move(TID, _, Dest, _, _, 0, _, _, _).
+
+% ... don't move after
+:- end(TID, _, ReqArr), move(TID, _, _, _, Arr, 0, _, _, _), ReqArr+TotalMalExTime <= Arr, TotalMalExTime = #max { MalExTime: malfunction_extra_time(TID, MalExTime) }.
 
 % no mutliple trains at same intersection at same time
-:- move(TID1, _, B, _, Arr, _, _),  move(TID2, _, B, _, Arr, _, _), TID1!=TID2.
+:- move(TID1, _, B, _, Arr, 0, _, _, _),  move(TID2, _, B, _, Arr, 0, _, _, _), TID1!=TID2.
 
 % no trains going into opposite directions on same intersection in the same time period
-:- move(TID1, A, B, _, Arr1, _, _), move(TID2, B, A, _, Arr2, _, _), move(TID1, _, A, _, Dep1, _, _), move(TID2, _, B, _, Dep2, _, _), Dep2 <= Dep1, Dep1 <= Arr2.
-:- move(TID1, A, B, _, Arr1, _, _), move(TID2, B, A, _, Arr2, _, _), move(TID1, _, A, _, Dep1, _, _), move(TID2, _, B, _, Dep2, _, _), Dep2 <= Arr1, Arr1 <= Arr2.
+:- move(TID1, A, B, _, Arr1, 0, _, _, _), move(TID2, B, A, _, Arr2, 0, _, _, _), move(TID1, _, A, _, Dep1, 0, _, _, _), move(TID2, _, B, _, Dep2, 0, _, _, _), Dep2 <= Dep1, Dep1 <= Arr2.
+:- move(TID1, A, B, _, Arr1, 0, _, _, _), move(TID2, B, A, _, Arr2, 0, _, _, _), move(TID1, _, A, _, Dep1, 0, _, _, _), move(TID2, _, B, _, Dep2, 0, _, _, _), Dep2 <= Arr1, Arr1 <= Arr2.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Display %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%% Display %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% #show intersection/6.
-% #show move/7.
+%Minimize train journey times
+#minimize { 1, TID, A, T: action(TID, A, T) }.
+
 #show action/3.
+
+% To show actual executed moves
+% chosen_move(TID, A, B, Dep, Arr, 0, DirFrom, DirTo, Move)
+    % :- move(TID, A, B, Dep, Arr, 0, DirFrom, DirTo, Move).
+% #show chosen_move/9.

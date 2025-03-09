@@ -1,3 +1,6 @@
 #primary=['asp/graph_based/actions.lp','asp/graph_based/graph.lp','asp/graph_based/traverse.lp']
-primary=['asp/own_encoding/graph-based-approach.lp']
-secondary=['asp/own_encoding/railsched.lp', 'asp/graph_based/actions.lp','asp/graph_based/graph.lp','asp/graph_based/traverse.lp']
+#primary=['asp/own_encoding/graph-based-approach.lp']
+#primary=['asp/own_encoding/old-graph-based.lp']
+# primary=['asp/own_encoding/from-scratch.lp']
+primary=['asp/own_encoding/railsched.lp']
+secondary=['asp/own_encoding/graph-based-approach.lp', 'asp/graph_based/actions.lp','asp/graph_based/graph.lp','asp/graph_based/traverse.lp']

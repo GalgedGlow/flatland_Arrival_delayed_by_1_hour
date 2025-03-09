@@ -5,16 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Current File with Arguments",
+            "name": "Python Debugger: Current File",
             "type": "debugpy",
             "request": "launch",
-            "program": "railsched.py",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python Debugger: solve.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "solve.py",
             "console": "integratedTerminal",
             "args": [
-                "railsched.lp",
-                "test2.lp",
-                "0",
-                "-q"
+                "envs/pkl/env_007--2_2.pkl"
             ]
         }
     ]

@@ -51,21 +51,40 @@ def convert_formers_to_clingo(actions) -> str:
     # change from dictionary into facts
     for index, dict in enumerate(actions):
         for key in dict.keys():
-            facts.append(f':- not action(train({key}),{actions[index][key]},{index}).\n') #remove: can this be a list of strings or should it be one long string?
+            facts.append(f'forced_action(train({key}),{actions[index][key]},{index}).\n') #remove: can this be a list of strings or should it be one long string?
     
     return(facts)
 
 
-def convert_malfunctions_to_clingo(malfs, timestep) -> str:
+def convert_malfunctions_to_clingo(all_malfs, new_malfs, timestep) -> str:
     #mapping = {RailEnvActions.MOVE_FORWARD:"move_forward", RailEnvActions.MOVE_RIGHT:"move_right", RailEnvActions.MOVE_LEFT:"move_left", RailEnvActions.STOP_MOVING:"wait"}
     facts = []
-    for m in malfs:
-        train, duration = m[0], m[1]
-        facts.append(f'malfunction({train},{duration},{timestep}).\n')
-        for t in range(timestep+1, timestep+1+m[1]): # remove: make sure this duration should be included (aka remove +1 or keep it?)
-            facts.append(f':- not action(train({train}),wait,{t}).\n') #remove: can this be a list of strings or should it be one long string?
+    malfunctions = []
 
-    return(facts)
+    malfunction_extra_times: dict = {}
+
+    for m in all_malfs:
+        train, duration = m[0], m[1]
+        malfunction_extra_times[train] = malfunction_extra_times.get(train, 0) + duration
+        print(f"malfunction_extra_times[{train}] += {duration}")
+        # if train in all_malfs:
+        #     print(f"malfunction_extra_times[{train}] += {duration}")
+        #     malfunction_extra_times[train] += duration
+        # else:
+        #     print(f"malfunction_extra_times[{train}] = {duration}")
+        #     malfunction_extra_times[train] = duration
+
+    for (train, duration) in malfunction_extra_times.items():
+        print(f'malfunction_extra_time({train}, {duration})')
+        malfunctions.append(f'malfunction_extra_time({train}, {duration}).\n')
+
+    for m in new_malfs:
+        train, duration = m[0], m[1]
+        malfunctions.append(f'malfunction({train},{duration},{timestep}).\n')
+        for t in range(timestep, timestep+m[1]): # remove: make sure this duration should be included (aka remove +1 or keep it?) #no +1, wait should be enforced when malfunctions starts
+            facts.append(f'forced_action(train({train}),wait,{t}).\n') #remove: can this be a list of strings or should it be one long string?
+
+    return(facts, malfunctions)
 
 
 def convert_futures_to_clingo(actions) -> str:

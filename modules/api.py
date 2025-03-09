@@ -33,7 +33,10 @@ class FlatlandPlan(Application):
         
         # ground the program
         ctl.ground([("base", [])], context=self)
-        ctl.configuration.solve.models="-1"
+        # ctl.configuration.solve.models="0" #1
+        # ctl.configuration.solve.opt_mode="optN" #   pt
+        ctl.configuration.solve.models="1" #1
+        ctl.configuration.solve.opt_mode="opt" #opt
 
         # solve and save models
         models = []
